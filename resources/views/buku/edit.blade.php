@@ -3,7 +3,8 @@
 @section('title', 'edit buku')
 @section('content')
 <h1>Edit Buku</h1>
-<from action="{{ route('buku.update', $buku->id) }}" method="POST">
+{{-- <from action="{{ route('buku.update', $buku->id) }}" method="POST"> --}}
+<form action="{{ route('buku.update', $buku->id) }}" method="PUT" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="mb-3">
@@ -37,6 +38,10 @@
             <option value="{{ $k->id }}" {{ $buku->kategori_id == $k->id ? 'selected' : '' }}>{{ $k->nama_kategori }}</option>
             @endforeach
         </select>
+    </div>
+    <div class="mb-3">
+        <label for="cover" class="form-label">Cover Buku</label>
+        <input type="file" name="cover" id="cover" class="form-control">
     </div>
     <button type="submit" class="btn btn-primary">Update Buku</button>
 </from>

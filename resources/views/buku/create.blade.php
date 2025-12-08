@@ -5,7 +5,8 @@
 @section('content')
     <h1>Buat Daftar Buku</h1>
 
-    <form action="{{ route('buku.store') }}" method="POST">
+    {{-- <form action="{{ route('buku.store') }}" method="POST"> --}}
+    <form action="{{ route('buku.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
         <div class="mb-1"> 
@@ -44,6 +45,10 @@
         <div class="mb-1">
             <label for="stock">Stock:</label>
             <input type="number" id="stock" name="stock" required>
+        </div>
+        <div class="mb-3">
+            <label for="cover" class="form-label">Cover Buku</label>
+            <input type="file" name="cover" id="cover" class="form-control">
         </div>
         <button type="submit">Simpan</button>
     </form>

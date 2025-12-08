@@ -1,75 +1,91 @@
 @extends('layouts.app')
 
+
 @section('content')
-<h1>Data Peminjaman</h1>
-
-<a href="{{ route('peminjam.create') }}" class="btn btn-primary mb-3">Tambah Peminjaman</a>
-{{-- form filter --}}
-<form method="GET" action="{{ route('peminjam.index') }}" class="row mb-3">
-    <div class="col-md-3">
-        <input type="text" name="anggota" class="form-control"
-               placeholder="Nama anggota" value="{{ request('anggota') }}">
+    
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Nama anggota</label>
+                <input type="text" name="anggota" class="form-control" value="{{ request('anggota') }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">-- Semua status --</option>
+                    <option value="dipinjam" {{ request('status')=='dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                    <option value="kembali" {{ request('status')=='kembali' ? 'selected' : '' }}>Kembali</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Tgl mulai</label>
+                <input type="date" name="tgl_mulai" class="form-control" value="{{ request('tgl_mulai') }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Tgl akhir</label>
+                <input type="date" name="tgl_akhir" class="form-control" value="{{ request('tgl_akhir') }}">
+            </div>
+            <div class="col-md-3 text-md-start text-center">
+                <button type="submit" class="btn btn-primary me-1 mt-2">Filter</button>
+                <a href="{{ route('peminjam.index') }}" class="btn btn-secondary mt-2">Reset</a>
+            </div>
+        </form>
     </div>
-    <div class="col-md-3">
-        <select name="status" class="form-control">
-            <option value="">-- Semua status --</option>
-            <option value="dipinjam" {{ request('status') == 'dipinjam' ? 'selected' : '' }}>Dipinjam</option>
-            <option value="kembali" {{ request('status') == 'kembali' ? 'selected' : '' }}>Kembali</option>
-        </select>
-    </div>
-    <div class="col-md-3">
-    <input type="date" name="tanggal_awal" class="form-control"
-           value="{{ request('tanggal_awal') }}">
-    </div>
-    <div class="col-md-3">
-        <input type="date" name="tanggal_akhir" class="form-control"
-            value="{{ request('tanggal_akhir') }}">
-    </div>
-
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary">Filter</button>
-        <a href="{{ route('peminjam.index') }}" class="btn btn-secondary">Reset</a>
-    </div>
-    <div class="col-md-3">
-        <input type="text" name="buku" class="form-control"
-            placeholder="Judul buku" value="{{ request('buku') }}">
-    </div>
-</form>
-
-
-{{-- <table class="table table-bordered"> --}}
-    <table class="table table-striped table-hover align-middle">
-    <thead>
-        <tr>
-            <th>ID</th>
+</div>
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-light">
+        <tr class="text-center">
+            <th style="width: 40px;">ID</th>
             <th>Anggota</th>
-            <th>Tgl Pinjam</th>
-            <th>Jatuh Tempo</th>
-            <th>Status</th>
+            <th style="width: 120px;">Tgl Pinjam</th>
+            <th style="width: 130px;">Jatuh Tempo</th>
+            <th style="width: 110px;">Status</th>
             <th>Buku</th>
-            <th>aksi</th>
+            <th style="width: 130px;">Aksi</th>
         </tr>
     </thead>
     <tbody>
-    @foreach ($peminjam as $p)
-        <tr>
-            <td>{{ $p->id }}</td>
-            <td>{{ $p->anggota->nama ?? '-' }}</td>
-            <td>{{ $p->tanggal_pinjam }}</td>
-            <td>{{ $p->tanggal_jatuh_tempo }}</td>
-            <td>{{ $p->status }}</td>
-            <td>
-                
-                @foreach ($p->detailPeminjam ?? [] as $d)
-                    {{ $d->buku->judul_buku ?? '???' }}<br>
-                @endforeach
-                <td>
-                 <a href="{{ route('peminjam.return.form', $p->id) }}" class="btn btn-success btn-sm">Pengembalian</a>   
+        @forelse ($peminjam as $row)
+            <tr>
+                <td class="text-center">{{ $row->id }}</td>
+                <td>{{ $row->anggota->nama ?? '-' }}</td>
+                <td class="text-center">{{ $row->tanggal_pinjam }}</td>
+                <td class="text-center">{{ $row->tanggal_jatuh_tempo }}</td>
+                <td class="text-center">
+                    @php
+                        $statusClass = $row->status === 'dipinjam' ? 'warning' : 'success';
+                    @endphp
+                    <span class="badge bg-{{ $statusClass }}">
+                        {{ ucfirst($row->status) }}
+                    </span>
                 </td>
-                
-            </td>
-        </tr>
-    @endforeach
+                <td>
+                    @foreach ($row->detailPeminjam as $detail)
+                        <div class="small">
+                            • {{ $detail->buku->judul_buku ?? '-' }}
+                        </div>
+                    @endforeach
+                </td>
+                <td class="text-center">
+                    @if($row->status === 'dipinjam')
+                        <a href="{{ route('peminjam.return.form', $row->id) }}"
+                           class="btn btn-success btn-sm">
+                            Pengembalian
+                        </a>
+                    @else
+                        <span class="text-muted small">Selesai</span>
+                    @endif
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    Belum ada data peminjaman.
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
+</div>
 @endsection

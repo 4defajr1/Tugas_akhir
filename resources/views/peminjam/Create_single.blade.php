@@ -1,4 +1,4 @@
-{{-- @extends('layouts.app')
+{{-- {{-- @extends('layouts.app')
 
 @section('content')
 <div class="container">
@@ -45,14 +45,16 @@
         <a href="{{ route('buku.index') }}" class="btn btn-secondary">Kembali</a>
     </form>
 </div>
-@endsection --}} --}}
+@endsection --}} 
 
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
-    <h1>Pinjam Buku: {{ $buku->judul_buku }}</h1>
-    <p>Atas nama: <strong>{{ $anggota->nama }}</strong></p>
+    <h1>Form Peminjaman Single</h1>
+    <p>Buku: <strong>{{ $buku->judul_buku ?? '-' }}</strong></p>
+    <p>Anggota: <strong>{{ $anggota->nama ?? '-' }}</strong></p>
+</div>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -84,3 +86,18 @@
     </form>
 </div>
 @endsection
+
+{{-- @extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>Form Peminjaman Single</h1>
+    <p>Buku: <strong>{{ $buku->judul_buku ?? '-' }}</strong></p>
+    <p>Anggota: <strong>{{ $anggota->nama ?? '-' }}</strong></p>
+</div>
+<form action="{{ route('peminjam.store.single', $buku->id) }}" method="POST">
+    @csrf
+    <!-- input tanggal dsb -->
+    <button type="submit" class="btn btn-success">Pinjam Buku Ini</button>
+</form>
+@endsection --}}

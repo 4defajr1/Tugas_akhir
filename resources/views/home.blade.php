@@ -1,52 +1,3 @@
-{{-- @extends('layouts.app')
-
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    {{ __('You are logged in!') }}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection --}}
-
-{{-- @extends('layouts.app')
-
-@section('content')
-<div class="container">
-    <div class="p-5 mb-4 bg-light rounded-3">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Selamat datang di Perpustakaan</h1>
-            <p class="col-md-8 fs-5">
-                Aplikasi ini membantu mengelola data buku, anggota, peminjaman, dan pengembalian
-                secara praktis untuk kampus/sekolah Anda.
-            </p>
-            @auth
-                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg">
-                    Buka Dashboard
-                </a>
-            @else
-                <a href="{{ route('login') }}" class="btn btn-primary btn-lg">
-                    Login sebagai Admin
-                </a>
-            @endauth
-        </div>
-    </div>
-</div>
-@endsection --}}
-
 @extends('layouts.app')
 
 @section('content')
@@ -67,7 +18,8 @@
             @endauth
         </div>
         <div class="col-md-6 text-center">
-            <img src="https://via.placeholder.com/420x260?text=Perpustakaan" class="img-fluid rounded shadow-sm" alt="Perpustakaan">
+            <img src="https://via.placeholder.com/420x260?text=Perpustakaan"
+                 class="img-fluid rounded shadow-sm" alt="Perpustakaan">
         </div>
     </div>
 

@@ -200,6 +200,7 @@ class PeminjamController extends Controller
 
     public function storeSingle(Request $request, Buku $buku)
     {
-        // logika batas 3 buku + simpan peminjaman seperti yang tadi
+        return redirect()->route('peminjam.index')->with('success', 'Buku berhasil dipinjam.');
+        
     }
 }

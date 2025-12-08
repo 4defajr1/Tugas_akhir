@@ -11,6 +11,17 @@
         <input type="text" class="form-control" id="nama" name="nama" value="{{ $anggota->nama }}" required>
     </div>
     <div class="mb-3">
+    <label class="form-label">User</label>
+    <select name="user_id" class="form-select" required>
+        @foreach($users as $user)
+            <option value="{{ $user->id }}"
+                {{ $anggota->user_id == $user->id ? 'selected' : '' }}>
+                {{ $user->name }} ({{ $user->email }})
+            </option>
+        @endforeach
+    </select>
+    </div>
+    <div class="mb-3">
         <label for="alamat" class="form-label">Alamat</label>
         <input type="text" class="form-control" id="alamat" name="alamat" value="{{ $anggota->alamat }}" required>
     </div>

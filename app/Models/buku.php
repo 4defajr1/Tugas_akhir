@@ -14,6 +14,7 @@ class buku extends Model
         'penerbit', 
         'tahun_terbit', 
         'isbn', 
+        'cover',
         'stock', 
         'kategori_id'
     ];
