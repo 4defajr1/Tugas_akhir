@@ -91,22 +91,24 @@
                                 </div>
                             </div>
 
-                            {{-- Kolom kanan: Foto & Status --}}
+                            {{-- Kolom kanan --}}
                             <div class="col-md-5">
-                                <div class="mb-3 text-center">
-                                    <label class="form-label d-block">Foto</label>
-                                    <div class="mb-3">
-                                        <img src="{{ asset('storage/cover/default-user.png') }}"
-                                             class="rounded-circle border" width="120" height="120" alt="Preview">
-                                    </div>
-                                    <input type="file" name="foto"
-                                           class="form-control @error('foto') is-invalid @enderror">
-                                    <div class="form-text">Format: jpg, png. Maks 2MB.</div>
+                                {{-- Foto --}}
+                                <div class="mb-3">
+                                    <label for="foto" class="form-label">Foto</label>
+                                    <input type="file" name="foto" id="foto"
+                                           class="form-control @error('foto') is-invalid @enderror"
+                                           accept="image/*">
                                     @error('foto')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+
+                                    <img id="fotoPreview"
+                                         style="display:none; max-width:150px; margin-top:10px;"
+                                         class="img-thumbnail">
                                 </div>
 
+                                {{-- Status --}}
                                 <div class="mb-3">
                                     <label class="form-label">Status</label>
                                     <select name="status" class="form-select">
@@ -122,4 +124,20 @@
                             <a href="{{ route('anggota.index') }}" class="btn btn-outline-secondary px-4">Batal</a>
                         </div>
                     </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('foto').addEventListener('change', function () {
+    const [file] = this.files;
+    if (!file) return;
+    const img = document.getElementById('fotoPreview');
+    img.src = URL.createObjectURL(file);
+    img.style.display = 'block';
+});
+</script>
 @endsection

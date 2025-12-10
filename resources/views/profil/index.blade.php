@@ -9,10 +9,21 @@
             <div class="card text-center shadow-sm border-0">
                 <div class="card-body">
                     <div class="mb-3">
-                        <img src="{{ $anggota && $anggota->foto
+                        {{-- <img src="{{ $anggota && $anggota->foto
                                     ? asset('storage/'.$anggota->foto)
                                     : asset('storage/anggota/default-user.png') }}"
-                             class="rounded-circle border" width="96" height="96" alt="Foto profil">
+                             class="rounded-circle border" width="96" height="96" alt="Foto profil"> --}}
+                            @if ($anggota && $anggota->foto)
+                                <img src="{{ asset('storage/'.$anggota->foto) }}"
+                                    alt="{{ $anggota->nama }}"
+                                    class="img-thumbnail"
+                                    width="120">
+                            @else
+                                <img src="{{ asset('images/default-user.png') }}"
+                                    alt="default"
+                                    class="img-thumbnail"
+                                    width="120">
+                            @endif 
                     </div>
 
                     <h5 class="card-title mb-0">{{ $anggota->nama ?? $user->name }}</h5>

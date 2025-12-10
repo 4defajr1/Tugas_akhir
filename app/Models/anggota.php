@@ -17,7 +17,8 @@ class anggota extends Model
         'alamat', 
         'no_hp', 
         'email', 
-        'status'
+        'status',
+        'foto'
     ];
     //1 anggota bisa memiliki banyak peminjam
     public function peminjam()

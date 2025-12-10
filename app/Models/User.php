@@ -51,7 +51,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(Anggota::class, 'user_id');
     }
-    public function isAdmin(): bool
+    public function Admin(): bool
     {
         return $this->role === 'admin';
     }
