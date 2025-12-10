@@ -92,7 +92,7 @@ use App\Http\Controllers\PeminjamController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\IsAdmin;
 
-// Halaman umum
+// Halaman umum (tanpa login)
 Route::get('/', function () { return view('home'); })->name('home');
 Route::get('/home', function () { return view('home'); });
 Route::get('/about', function () { return view('about'); })->name('about');
@@ -110,14 +110,20 @@ Route::get('/profil', [ProfileController::class, 'index'])
     ->middleware('auth')
     ->name('profil.index');
 
+// LIST & DETAIL BUKU → bisa diakses semua user login (admin + anggota)
+Route::middleware('auth')->group(function () {
+    Route::get('/buku', [BukuController::class, 'index'])->name('buku.index');
+    Route::get('/buku/{buku}', [BukuController::class, 'show'])->name('buku.show');
+});
+
 // Akses ADMIN saja
 Route::middleware(['auth', IsAdmin::class])->group(function () {
 
     // CRUD Kategori
     Route::resource('kategori', KategoriController::class);
 
-    // CRUD Buku
-    Route::resource('buku', BukuController::class);
+    // CRUD Buku (kecuali index & show, karena sudah di atas)
+    Route::resource('buku', BukuController::class)->except(['index', 'show']);
 
     // CRUD Anggota
     Route::resource('anggota', AnggotaController::class);
@@ -126,12 +132,16 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
     Route::resource('peminjam', PeminjamController::class)->except(['create']);
 
     // Form & proses pengembalian (admin)
-    Route::get('/peminjam/return/{id}', [PeminjamController::class, 'showreturnform'])->name('peminjam.return.form');
-    Route::post('/peminjam/return/{id}', [PeminjamController::class, 'processreturn'])->name('peminjam.processreturn');
+    Route::get('/peminjam/return/{id}', [PeminjamController::class, 'showreturnform'])
+        ->name('peminjam.return.form');
+    Route::post('/peminjam/return/{id}', [PeminjamController::class, 'processreturn'])
+        ->name('peminjam.processreturn');
 });
 
 // Akses semua USER login (admin & user anggota) untuk pinjam single
 Route::middleware('auth')->group(function () {
-    Route::get('/peminjam/create/{buku}', [PeminjamController::class, 'createSingle'])->name('peminjam.create.single');
-    Route::post('/peminjam/store-single/{buku}', [PeminjamController::class, 'storeSingle'])->name('peminjam.store.single');
+    Route::get('/peminjam/create/{buku}', [PeminjamController::class, 'createSingle'])
+        ->name('peminjam.create.single');
+    Route::post('/peminjam/store-single/{buku}', [PeminjamController::class, 'storeSingle'])
+        ->name('peminjam.store.single');
 });

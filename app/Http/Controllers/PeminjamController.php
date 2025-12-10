@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Peminjam;
 use App\Models\Buku;
 use App\Models\Anggota;
-use App\Models\detailPeminjam;
+use App\Models\buku as ModelsBuku;
+use App\Models\DetailPeminjam;
+use App\Models\DetailPeminjam as ModelsDetailPeminjam;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -23,34 +25,37 @@ class PeminjamController extends Controller
 
 //filter data
     public function index(Request $request)
-{
-    $query = Peminjam::with(['anggota', 'detailPeminjam.buku']);
-    if ($request->filled('anggota')) {
-        $query->whereHas('anggota', function ($q) use ($request) {
-            $q->where('nama', 'like', '%' . $request->anggota . '%');
-        });
-    }
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-    if ($request->filled('tanggal_awal')) {
-    $query->whereDate('tanggal_pinjam', '>=', $request->tanggal_awal);
-    }
+    {
+        $query = DetailPeminjam::with(['peminjam.anggota', 'buku']);
 
-    if ($request->filled('tanggal_akhir')) {
-        $query->whereDate('tanggal_pinjam', '<=', $request->tanggal_akhir);
+        if ($request->filled('anggota')) {
+            $query->whereHas('peminjam.anggota', function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->anggota . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->whereHas('peminjam', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        }
+
+        if ($request->filled('tanggal_awal')) {
+            $query->whereHas('peminjam', function ($q) use ($request) {
+                $q->whereDate('tanggal_pinjam', '>=', $request->tanggal_awal);
+            });
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereHas('peminjam', function ($q) use ($request) {
+                $q->whereDate('tanggal_pinjam', '<=', $request->tanggal_akhir);
+            });
+        }
+
+        $detailPeminjam = $query->latest()->get();
+
+        return view('peminjam.index', compact('detailPeminjam'));
     }
-
-    $peminjam = $query->orderBy('tanggal_pinjam', 'desc')->get();
-    return view('peminjam.index', compact('peminjam'));
-
-    if ($request->filled('buku')) {
-        $query->whereHas('detailPeminjam.buku', function ($q) use ($request) {
-            $q->where('judul_buku', 'like', '%' . $request->buku . '%');
-        });
-    }
-
-}
 
     public function create()
     {
@@ -58,97 +63,47 @@ class PeminjamController extends Controller
         $anggota = Anggota::all();
         return view('peminjam.create', compact('buku', 'anggota'));
     }
-    //peminjaman by buku
-//     public function createSingle(Buku $buku){
-//         $anggota = Auth::user()->anggota;
-
-//         if (! $anggota) {
-//             abort(403, 'Akun ini belum terhubung dengan data anggota.');
-//         }
-//         return view('peminjam.create_single', compact('buku', 'anggota'));
-//         }
-        
-// //batasan peminjaman
-//     public function storeSingle(Request $request, Buku $buku)
-//     {
-//         $anggotaId = $request->anggota_id; // atau dari Auth/user->anggota_id
-
-//         // hitung total buku yang masih dipinjam anggota ini
-//         $totalSedangDipinjam = DetailPeminjam::whereHas('peminjam', function ($q) use ($anggotaId) {
-//                 $q->where('anggota_id', $anggotaId)
-//                 ->where('status', 'dipinjam');
-//             })
-//             ->whereNull('tanggal_kembali')
-//             ->count();
-
-//         if ($totalSedangDipinjam >= 3) {
-//             return back()->withErrors('Maksimal 3 buku yang boleh dipinjam sekaligus.')->withInput();
-//         }
-        
-//         $request->validate([
-//             'anggota_id'         => 'required|exists:anggota,id',
-//             'tanggal_pinjam'     => 'required|date',
-//             'tanggal_jatuh_tempo'=> 'required|date|after_or_equal:tanggal_pinjam',
-//         ]);
-
-//         DB::transaction(function () use ($request, $buku) {
-//             $peminjam = Peminjam::create([
-//                 'anggota_id'          => $request->anggota_id,
-//                 'tanggal_pinjam'      => $request->tanggal_pinjam,
-//                 'tanggal_jatuh_tempo' => $request->tanggal_jatuh_tempo,
-//                 'status'              => 'dipinjam',
-//             ]);
-
-//             DetailPeminjam::create([
-//                 'peminjam_id'     => $peminjam->id,
-//                 'buku_id'         => $buku->id,
-//                 'tanggal_kembali' => null,
-//                 'denda'           => 0,
-//             ]);
-
-//             // kurangi stok
-//             $buku->decrement('stock', 1);
-//         });
-
-//         return redirect()->route('peminjam.index')->with('success', 'Buku berhasil dipinjam.');
-//     }                       
-
 
     public function store(Request $request)
     {
         $request->validate([
-            'anggota_id'       => 'required|exists:anggota,id',
-            'tanggal_pinjam'   => 'required|date',
-            'tanggal_jatuh_tempo' => 'required|date',
-            'buku_id'          => 'required|array',
-            'buku_id.*'        => 'exists:buku,id',
+            'anggota_id'           => 'required|exists:anggota,id',
+            'tanggal_pinjam'       => 'required|date',
+            'tanggal_jatuh_tempo'  => 'required|date',
+            'buku_id'              => 'required|array',
+            'buku_id.*'            => 'exists:buku,id',
         ]);
-//mencegah buku habis
-        foreach ($request->buku_id as $bukuId) {
-            $buku = Buku::find($bukuId);
-            if ($buku->stock < 1) {
-                return redirect()->back()->withErrors(['buku_id' => "Buku '{$buku->title}' tidak tersedia untuk dipinjam."])->withInput();
-            }
-        }
-        DB::transaction (function () use ($request){
+
+        DB::transaction(function () use ($request) {
+            // buat data peminjam utama
             $peminjam = Peminjam::create([
-                'anggota_id'       => $request->anggota_id,
-                'tanggal_pinjam'   => $request->tanggal_pinjam,
+                'anggota_id'          => $request->anggota_id,
+                'tanggal_pinjam'      => $request->tanggal_pinjam,
                 'tanggal_jatuh_tempo' => $request->tanggal_jatuh_tempo,
-                'status'           => 'dipinjam',
+                'status'              => 'dipinjam',
             ]);
+
+            // looping setiap buku yang dipinjam
             foreach ($request->buku_id as $bukuId) {
-                detailpeminjam::create([
-                    'peminjam_id'   => $peminjam->id,
-                    'buku_id'       => $bukuId,
-                    'tanggal_kembali' => null,
-                    'denda'         => 0,
+                // optional: cek stok dulu
+                $buku = Buku::findOrFail($bukuId);
+                if ($buku->stock < 1) {
+                    throw new \Exception("Stok buku habis");
+                }
+
+                DetailPeminjam::create([
+                    'peminjam_id'      => $peminjam->id,
+                    'buku_id'          => $bukuId,
+                    'tanggal_kembali'  => null,
+                    'denda'            => 0,
                 ]);
-    // mengurangi stok buku saat dipinjam
+
+                // kurangi stok buku
                 Buku::where('id', $bukuId)->decrement('stock', 1);
             }
         });
-        return redirect()->route('peminjam.index');
+
+        return redirect()->route('peminjam.index')->with('success', 'Peminjaman berhasil disimpan.');
     }
     public function showreturnform($id)
     {
@@ -200,7 +155,42 @@ class PeminjamController extends Controller
 
     public function storeSingle(Request $request, Buku $buku)
     {
-        return redirect()->route('peminjam.index')->with('success', 'Buku berhasil dipinjam.');
+        $request->validate([
+            'tanggal_pinjam'      => 'required|date',
+            'tanggal_jatuh_tempo' => 'required|date',
+        ]);
+
+        $anggota = Auth::user()->anggota;   // relasi user -> anggota
+        if (!$anggota) {
+            abort(403, 'Akun ini belum terhubung dengan data anggota.');
+        }
+
+        DB::transaction(function () use ($request, $buku, $anggota) {
+            $peminjam = Peminjam::create([
+                'anggota_id'          => $anggota->id,
+                'tanggal_pinjam'      => $request->tanggal_pinjam,
+                'tanggal_jatuh_tempo' => $request->tanggal_jatuh_tempo,
+                'status'              => 'dipinjam',
+            ]);
+
+            detailPeminjam::create([
+                'peminjam_id'     => $peminjam->id,
+                'buku_id'         => $buku->id,
+                'tanggal_kembali' => null,
+                'denda'           => 0,
+            ]);
+
+            if ($buku->stock < 1) {
+                throw new \Exception('Stok buku habis');
+            }
+            $buku->decrement('stock', 1);
+        });
+
+        // setelah berhasil, kembali ke profil user
+        return redirect()->route('profil.index')->with('success', 'Buku berhasil dipinjam.');
+
+        // return redirect()->route('peminjam.index')->with('success', 'Buku berhasil dipinjam.');
         
     }
+    
 }

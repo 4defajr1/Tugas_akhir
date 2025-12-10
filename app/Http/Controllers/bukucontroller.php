@@ -15,6 +15,7 @@ class bukucontroller extends Controller
     //     $buku = Buku::with('kategori')->get();
     //     return view('buku.index', compact('buku'));
     // }
+//LIAT
 public function index(Request $request)
 {
     $query = Buku::with('kategori');
@@ -34,40 +35,57 @@ public function index(Request $request)
 
     $buku = $query->orderBy('judul_buku')->get();
     $kategori = Kategori::orderBy('nama_kategori')->get();
-
+ 
     return view('buku.index', compact('buku', 'kategori'));
 }
 
-
+    //CREATE
     public function create()
     {
-        $kategori = Kategori::all();
+        $kategori = Kategori::orderBy('nama_kategori')->get();
+
         return view('buku.create', compact('kategori'));
     }
+    //STORE
     public function store(Request $request)
     {
         $request->validate([
             'judul_buku'    => 'required',
             'pengarang'     => 'required',
+            'penerbit'      => 'required',
             'tahun_terbit'  => 'required|integer',
             'kategori_id'   => 'required|exists:kategori,id',
             'isbn'          => 'required|unique:buku,isbn',
             'stock'         => 'required|integer',
             'cover'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-        Buku::create($request->all());
-        if($request->hasFile('cover')){
-            $data['cover']=$request->file('cover')->store('cover','public');
-        }
-        buku::create($data);
-        return redirect()->route('buku.index');
+            $data = $request->only([
+            'judul_buku',
+            'pengarang',
+            'penerbit',
+            'tahun_terbit',
+            'kategori_id',
+            'isbn',
+            'stock',
+        ]);
+
+    // simpan cover jika ada
+    if ($request->hasFile('cover')) {
+        $data['cover'] = $request->file('cover')->store('cover', 'public');
     }
+
+    Buku::create($data);
+
+    return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan.');
+    }
+    // EDIT
     public function edit($id)
     {
         $buku = Buku::findOrFail($id);
         $kategori = Kategori::all();
         return view('buku.edit', compact('buku', 'kategori'));
     }
+    //UPDATE
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -87,6 +105,7 @@ public function index(Request $request)
         $buku->update($data);
         return redirect()->route('buku.index');
     }
+    //HAPUS
     public function destroy($id)
     {
         $buku = Buku::findOrFail($id);

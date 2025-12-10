@@ -9,14 +9,14 @@ class buku extends Model
     use HasFactory;
     protected $table = 'buku';
     protected $fillable = [
-        'judul_buku', 
-        'pengarang', 
-        'penerbit', 
-        'tahun_terbit', 
-        'isbn', 
+        'judul_buku',
+        'pengarang',
+        'penerbit',
+        'tahun_terbit',
+        'kategori_id',
+        'isbn',
+        'stock',
         'cover',
-        'stock', 
-        'kategori_id'
     ];
     //1 buku hanya memiliki 1 kategori
     public function kategori(){

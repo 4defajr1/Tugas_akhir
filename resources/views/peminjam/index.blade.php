@@ -46,45 +46,41 @@
         </tr>
     </thead>
     <tbody>
-        @forelse ($peminjam as $row)
-            <tr>
-                <td class="text-center">{{ $row->id }}</td>
-                <td>{{ $row->anggota->nama ?? '-' }}</td>
-                <td class="text-center">{{ $row->tanggal_pinjam }}</td>
-                <td class="text-center">{{ $row->tanggal_jatuh_tempo }}</td>
-                <td class="text-center">
-                    @php
-                        $statusClass = $row->status === 'dipinjam' ? 'warning' : 'success';
-                    @endphp
-                    <span class="badge bg-{{ $statusClass }}">
-                        {{ ucfirst($row->status) }}
-                    </span>
-                </td>
-                <td>
-                    @foreach ($row->detailPeminjam as $detail)
-                        <div class="small">
-                            • {{ $detail->buku->judul_buku ?? '-' }}
-                        </div>
-                    @endforeach
-                </td>
-                <td class="text-center">
-                    @if($row->status === 'dipinjam')
-                        <a href="{{ route('peminjam.return.form', $row->id) }}"
-                           class="btn btn-success btn-sm">
-                            Pengembalian
-                        </a>
-                    @else
-                        <span class="text-muted small">Selesai</span>
-                    @endif
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="7" class="text-center text-muted">
-                    Belum ada data peminjaman.
-                </td>
-            </tr>
-        @endforelse
+        @forelse ($detailPeminjam as $row)
+    <tr>
+        <td class="text-center">{{ $row->id }}</td>
+        <td class="text-center">{{ $row->peminjam->anggota->nama ?? '-' }}</td>
+        <td class="text-center">{{ $row->peminjam->tanggal_pinjam ?? '' }}</td>
+        <td class="text-center">{{ $row->peminjam->tanggal_jatuh_tempo ?? '' }}</td>
+        <td class="text-center">
+            @php
+                $statusClass = $row->peminjam->status === 'dipinjam' ? 'warning' : 'success';
+            @endphp
+            <span class="badge bg-{{ $statusClass }}">
+                {{ ucfirst($row->peminjam->status ?? '') }}
+            </span>
+        </td>
+        <td>
+            <div class="small">
+                {{ $row->buku->judul_buku ?? '-' }}
+            </div>
+        </td>
+        <td class="text-center">
+            @if(($row->peminjam->status ?? '') === 'dipinjam')
+                <a href="{{ route('peminjam.return.form', $row->peminjam_id) }}"
+                   class="btn btn-success btn-sm">
+                    Pengembalian
+                </a>
+            @else
+                <span class="text-muted small">Selesai</span>
+            @endif
+        </td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="7" class="text-center">Belum ada data.</td>
+    </tr>
+@endforelse
     </tbody>
 </table>
 </div>

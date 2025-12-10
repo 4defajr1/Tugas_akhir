@@ -27,7 +27,7 @@ class Peminjam extends Model
     //1 peminjam memiliki banyak detailPeminjam
     public function detailPeminjam()
     {
-        return $this->hasMany(detailPeminjam::class, 'peminjam_id');
+        return $this->hasMany(DetailPeminjam::class);
     }
     
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Anggota;
+use App\Models\anggota as ModelsAnggota;
 use App\Models\User;
 
 class AnggotaController extends Controller
@@ -33,16 +34,31 @@ class AnggotaController extends Controller
             'no_hp'   => 'required',
             'email'   => 'required|email',
             'status'  => 'required',
+            'foto'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+        $data=$request->only([
+            'user_id',
+            'nama',
+            'nim_nid',
+            'alamat',
+            'no_hp',
+            'email',
+            'status',
+        ]);
+        if($request->hasFile('foto')){
+            $data['foto'] = $request->file('foto')->store('anggota', 'public');
+        }
 
-        Anggota::create([
-            'user_id' => $request->user_id,
-            'nama'    => $request->nama,
-            'alamat'  => $request->alamat,
-            'no_hp'   => $request->no_hp,
-            'email'   => $request->email,
-            'status'  => $request->status,
-        ]);
+        Anggota::create($data);
+
+        // Anggota::create([
+        //     'user_id' => $request->user_id,
+        //     'nama'    => $request->nama,
+        //     'alamat'  => $request->alamat,
+        //     'no_hp'   => $request->no_hp,
+        //     'email'   => $request->email,
+        //     'status'  => $request->status,
+        // ]);
 
         return redirect()->route('anggota.index');
     }
@@ -70,16 +86,33 @@ class AnggotaController extends Controller
             'no_hp'   => 'required',
             'email'   => 'required|email',
             'status'  => 'required',
+            'foto'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+        $data = $request->only([
+                'user_id',
+                'nama',
+                'nim_nid',
+                'alamat',
+                'no_hp',
+                'email',
+                'status',
+            ]);
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+                $namaFile = time().'_'.$file->getClientOriginalName();
+                $file->storeAs('public/anggota', $namaFile);
 
-        $anggota->update([
-            'user_id' => $request->user_id,
-            'nama'    => $request->nama,
-            'alamat'  => $request->alamat,
-            'no_hp'   => $request->no_hp,
-            'email'   => $request->email,
-            'status'  => $request->status,
-        ]);
+                $data['foto'] = 'anggota/'.$namaFile; // simpan path relatif utk dipakai di Blade
+            }
+            $anggota->update($data);
+        // $anggota->update([
+        //     'user_id' => $request->user_id,
+        //     'nama'    => $request->nama,
+        //     'alamat'  => $request->alamat,
+        //     'no_hp'   => $request->no_hp,
+        //     'email'   => $request->email,
+        //     'status'  => $request->status,
+        // ]);
 
         return redirect()->route('anggota.index');
     }

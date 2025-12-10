@@ -9,7 +9,7 @@ use App\Models\buku;
 
 
 
-class detailPeminjam extends Model
+class DetailPeminjam extends Model
 {
     use HasFactory;
     protected $table = 'detail_peminjam';
@@ -20,13 +20,32 @@ class detailPeminjam extends Model
         'denda'
     ];
 
-    public function peminjam()
-    {
-        return $this->belongsTo(peminjam::class, 'peminjam_id');
-    }
+    // public function peminjam()
+    // {
+    //     return $this->belongsTo(peminjam::class, 'peminjam_id');
+    // }
 
-    public function buku()
-    {
-        return $this->belongsTo(buku::class, 'buku_id');
-    }
+    // public function buku()
+    // {
+    //     return $this->belongsTo(buku::class, 'buku_id');
+    // }
+
+    public function peminjam()
+        {
+            return $this->belongsTo(Peminjam::class, 'peminjam_id');
+        }
+
+        // public function anggota()
+        // {
+        //     return $this->belongsTo(Anggota::class);
+        // }
+
+        public function buku()
+        {
+            return $this->belongsTo(Buku::class);
+        }
+        public function anggota()
+        {
+            return $this->belongsTo(Anggota::class, 'anggota_id');
+        }
 }

@@ -4,7 +4,9 @@
 
 @section('content')
 <h1>Daftar Buku</h1>
-<a href="{{ route('buku.create') }}" class="btn btn-primary mb-3"> tambah Buku</a>
+@if(auth()->check() && auth()->user()->role === 'admin')
+ <a href="{{ route('buku.create') }}" class="btn btn-primary mb-3"> tambah Buku</a>   
+ @endif
 {{-- <table class="table table-bordered"> --}}
   <form method="GET" action="{{ route('buku.index') }}" class="row mb-3">
     <div class="col-md-4">
@@ -64,27 +66,29 @@
                 </form>
             </td> --}}
             <td>
+                @if(auth()->check() && auth()->user()->role === 'admin')
                 <div class="btn-group btn-group-sm" role="group">
                     <a href="{{ route('buku.edit', $b->id) }}" class="btn btn-warning">
                         <i class="bi bi-pencil-square"></i>
-                        
                     </a>
-                    <form action="{{ route('buku.destroy', $b->id) }}" method="POST" onsubmit="return confirm('Yakin hapus buku ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                    {{-- <a href="{{ route('peminjam.create.single', $b->id) }}" class="btn btn-success">
-                    <i class="bi bi-book"></i>  --}}
-                    </button> 
-                    </a>
-                    <button type="button"
-                            class="btn btn-info btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#detailBukuModal{{ $b->id }}">
-                            lihat
+                    
+                        <form action="{{ route('buku.destroy', $b->id) }}" method="POST" onsubmit="return confirm('Yakin hapus buku ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {{-- <a href="{{ route('peminjam.create.single', $b->id) }}" class="btn btn-success">
+                        <i class="bi bi-book"></i>  --}}
+                        </button> 
+                        </a>
+                @endif
+                        <button type="button"
+                                class="btn btn-info btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#detailBukuModal{{ $b->id }}">
+                                lihat
                     </button> 
                 </div>
             </td>

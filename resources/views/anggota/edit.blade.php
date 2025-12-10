@@ -3,13 +3,31 @@
 @section('title', 'Edit Anggota')
 @section('content')
 <h1>Edit Anggota</h1>
-<form action="{{ route('anggota.update', $anggota->id) }}" method="POST">
+<form action="{{ route('anggota.update', $anggota->id) }}" method="POST"enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="mb-3">
         <label for="nama" class="form-label">Nama</label>
         <input type="text" class="form-control" id="nama" name="nama" value="{{ $anggota->nama }}" required>
     </div>
+{{--foto--}}
+    <div class="mb-3">
+        <label class="form-label d-block">Foto</label>
+
+        @if ($anggota->foto)
+            <div class="mb-2">
+                <img src="{{ asset('storage/anggota/'.$anggota->foto) }}"
+                    class="rounded-circle border" width="80" height="80" alt="Foto sekarang">
+            </div>
+        @endif
+
+        <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror">
+        <div class="form-text">Biarkan kosong jika tidak ingin mengubah foto.</div>
+        @error('foto')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
     <div class="mb-3">
     <label class="form-label">User</label>
     <select name="user_id" class="form-select" required>
