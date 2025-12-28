@@ -14,7 +14,7 @@
             @auth
                 <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg me-2">Buka Dashboard</a>
             @else
-                <a href="{{ route('login') }}" class="btn btn-primary btn-lg me-2">Login Admin</a>
+                <a href="{{ route('login') }}" class="btn btn-primary btn-lg me-2">Login</a>
             @endauth
         </div>
         <div class="col-md-6 text-center">
