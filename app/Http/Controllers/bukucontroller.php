@@ -8,7 +8,7 @@ use App\Models\Kategori;
 
 
 
-class bukucontroller extends Controller
+class BukuController extends Controller
 {
     // public function index()
     // {
@@ -104,6 +104,12 @@ public function index(Request $request)
         $buku = Buku::findOrFail($id);
         $buku->update($data);
         return redirect()->route('buku.index');
+    }
+    // show
+    public function show($id)
+    {
+        $buku = Buku::with('kategori')->findOrFail($id);
+        return view('buku.show', compact('buku'));
     }
     //HAPUS
     public function destroy($id)
